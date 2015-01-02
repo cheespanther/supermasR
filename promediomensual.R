@@ -28,6 +28,12 @@ promediomensual <- function (mes,tienda) {
     cuentas4 <- nrow(c4)
     cuentas5 <- nrow(c5)
     cuentas6 <- nrow(c6)
+    
+    resumen <- summary (soloventas)
+    promedio <- mean (soloventas)
+    tablaresumen <- data.frame(numerodatos, promedio)
+    write.csv(tablaresumen, file = "C:/Users/Iskar/Desktop/resumen.csv")
+    
     Frecuencia <- c(cuentas1, cuentas2, cuentas3, cuentas4, cuentas5, cuentas6)
     Clases <- c("Menor a $20.00", "$21.00 a $50.00", "$51.00 a $100.00",
                   "$101.00 a $200.00", "$201.00 a $400.00", "Mayor a $400.00")
@@ -36,12 +42,12 @@ promediomensual <- function (mes,tienda) {
     write.csv(tabla, file = "C:/Users/Iskar/Desktop/promediomensual.csv")
     write.csv(tickets, file = "C:/Users/Iskar/Desktop/ticketsmensual.csv")
     ## hist(Frecuencia)
-    resumen <- summary (soloventas)
+
+
+    message ("Promedio Global y Tickets:")
+    print (tablaresumen)
     message ("Resumen:")
     print(resumen)
-    promedio <- mean (soloventas)
-    message ("Promedio Global:")
-    print (promedio)
     message ("Frecuencia por Clase:")
     return(tablabonita)
     

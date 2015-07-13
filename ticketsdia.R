@@ -1,48 +1,48 @@
-ticketsanalisis <- function (year, month, tienda) {
-
-library("lubridate")
+analisisticketsmensual <- function(yeartienda, mes, summarize = FALSE) 
+{
+library(lubridate)
+library(plyr)
 
   setwd("C:/R/TICKETS2014")
 
-         if (year == "2014" ){
-        setwd("C:/R/TICKETS2014")
-     } else if (year == "2015"){
-        setwd("C:/R/TICKETS2015")
+         if (yeartienda == "SM12014" ){
+        setwd("C:/R/TICKETS2014/SM1")
+     } else if (yeartienda == "SM22014"){
+        setwd("C:/R/TICKETS2014/SM2")
+     } else if (yeartienda == "SM32014"){
+        setwd("C:/R/TICKETS2014/SM3")
+     } else if (yeartienda == "SM12015"){
+        setwd("C:/R/TICKETS2015/SM1")
+     } else if (yeartienda == "SM22015"){
+        setwd("C:/R/TICKETS2015/SM2")
+     } else if (yeartienda == "SM32015"){
+        setwd("C:/R/TICKETS2015/SM3")
+     } else if (yeartienda == "SM42015"){
+        setwd("C:/R/TICKETS2015/SM4")
+     } else if (yeartienda == "SM52015"){
+        setwd("C:/R/TICKETS2015/SM5")
      } 
 
-       if (tienda == "SM1" ){
-        setwd("C:/R/TICKETS2014/SM12014")
-     } else if (tienda == "SM2"){
-        setwd("C:/R/TICKETS2014/SM22014")
-     } else if (tienda == "SM3"){
-        setwd("C:/R/TICKETS2014/SM32014")
-    }
+  dataselect <<- lapply(paste(mes, ".csv",sep=""), read.csv, header=TRUE)
+  combined <<- do.call(rbind, dataselect)
+  colnames(combined) <<- c("Fecha", "Sesion", "Cajero", "Total", "Tienda")
+  datatickets <<- c(combined$Total, na.rm= TRUE)
+  numerodatos <- nrow(combined)
+  soloventas <<- subset (datatickets, datatickets > 0)
+  ventastotales <<- sum(soloventas)
+  combinedmean <<- mean(soloventas)
+  ventamin <<- min(soloventas)
+  ventamax <<- max(soloventas)
 
-    files <- list.files (pattern = ".csv")
-    message("Archivos Encontrados:")
-    print (files)
-    data <- lapply(files, read.csv, header = TRUE)
-    tickets <- do.call(rbind, data)
-    numerodatos <- lapply (data, nrow)
-    soloventas <- subset (tickets, tickets$amount_total > 0)
-    
-    fechas <- soloventas[,1]
-    fechas <- sapply (fechas, as.character)
-    fechas <- strsplit(fechas, " ")
-    fechas <- do.call(rbind,(lapply(fechas, rbind)))
-    fechas <- as.data.frame(fechas)
-    colnames(fechas) <- c("fecha", "hora")
-    dia <- wday(dmy(fechas[,1]))
-    nuevo <- cbind(fechas,dia, soloventas[,-1])
+  dataticketsplit <<- split(combined, combined$Cajero)
+  dataticketsplit2 <<- list2env(dataticketsplit, envir = .GlobalEnv)
 
-
-    c1 <- subset (nuevo, nuevo["dia"] == 1)
-    c2 <- subset (nuevo, nuevo["dia"] == 2)
-    c3 <- subset (nuevo, nuevo["dia"] == 3)
-    c4 <- subset (nuevo, nuevo["dia"] == 4)
-    c5 <- subset (nuevo, nuevo["dia"] == 5)
-    c6 <- subset (nuevo, nuevo["dia"] == 6)
-    c7 <- subset (nuevo, nuevo["dia"] == 7)
+    c1 <- as.matrix(subset (soloventas, soloventas <= 20))
+    c2 <- as.matrix(subset (soloventas, soloventas > 20 & soloventas <= 50))
+    c3 <- as.matrix(subset (soloventas, soloventas > 50 & soloventas <= 100))
+    c4 <- as.matrix(subset (soloventas, soloventas > 100 & soloventas <= 200))
+    c5 <- as.matrix(subset (soloventas, soloventas > 200 & soloventas <= 400))
+    c6 <- as.matrix(subset (soloventas, soloventas > 400))
 
     cuentas1 <- nrow(c1)
     cuentas2 <- nrow(c2)
@@ -50,45 +50,35 @@ library("lubridate")
     cuentas4 <- nrow(c4)
     cuentas5 <- nrow(c5)
     cuentas6 <- nrow(c6)
-    cuentas7 <- nrow(c7)
+    Frecuencia <- c(cuentas1, cuentas2, cuentas3, cuentas4, cuentas5, cuentas6)
+    Clases <- c("Menor a $20.00", "$21.00 a $50.00", "$51.00 a $100.00",
+                  "$101.00 a $200.00", "$201.00 a $400.00", "Mayor a $400.00")
 
-    p1 <- mean(as.matrix(c1["amount_total"]))
-    p2 <- mean(as.matrix(c2["amount_total"]))
-    p3 <- mean(as.matrix(c3["amount_total"]))
-    p4 <- mean(as.matrix(c4["amount_total"]))
-    p5 <- mean(as.matrix(c5["amount_total"]))
-    p6 <- mean(as.matrix(c6["amount_total"]))
-    p7 <- mean(as.matrix(c7["amount_total"]))
+    tabla <<- data.frame(Clases, Frecuencia)
+    tablabonita <<- format (tabla, width = 20, justify = "right")
+    
+    resumen <<- c(numerodatos, ventastotales, combinedmean, ventamin, ventamax)
+    resumentitle <- c("Numero de Tickets", "Ventas Totales", "Promedio de Venta", "Venta Baja", "Venta Alta") 
+    resumentabla <<- data.frame(resumentitle, resumen)
 
+    promedio_cajeros <<- ddply (combined, "Cajero", summarise, promediocajero = mean(Total))
+    numero_de_ventas <<- ddply (combined, "Cajero", summarise, ticketstotal = length(Total))
+    suma_cajeros <<- ddply (combined, "Cajero", summarise, ventatotal = sum(Total))
 
-    numerodetickets <- c(cuentas1, cuentas2, cuentas3, cuentas4, cuentas5, cuentas6, cuentas7)
-    dias <- c("Domingo", "Lunes", "Martes","Miercoles", "Jueves", "Viernes", "Sabado")
-    promedio <- c(p1, p2, p3, p4, p5, p6, p7)
-    estimadoventas <- numerodetickets * promedio
+    cajeros <<- cbind(promedio_cajeros, numero_de_ventas[,2], suma_cajeros[,2])
 
-    setwd("C:/R/TICKETS2014/2014hora")
+message("Número de Tickets:")
+print(numerodatos)
+message("Ventas Totales:")
+print(ventastotales)
+message("Promedio de Venta:")
+print(combinedmean)
+message("Ventas por Rango de Tickets:")
+print(tablabonita)
+message("Reporte por Cajero:")
+print(cajeros)
 
-    tabla <- rbind(dias, numerodetickets, promedio, estimadoventas)
-    tablabonita <- format (tabla, width = 20, justify = "right")
+write.csv(tablabonita, file = paste(yeartienda,mes,".csv"))
+write.csv(resumentabla, file = paste(yeartienda,"RESUMEN",mes, ".csv"))
 
-  if(tienda == "SM1"){
-    write.csv(tabla, file = "C:/Users/Iskar/Desktop/ventasdiariassm1.csv")
-    write.csv(nuevo, file = "C:/Users/Iskar/Desktop/SM1pordia.csv")
-    hist(numerodetickets)
-  }
-  if(tienda == "SM2"){
-    write.csv(tabla, file = "C:/Users/Iskar/Desktop/ventasdiariassm2.csv")
-    write.csv(nuevo, file = "C:/Users/Iskar/Desktop/SM2pordia.csv")
-    hist(numerodetickets)
-  }
-  if(tienda == "SM3"){
-    write.csv(tabla, file = "C:/Users/Iskar/Desktop/ventasdiariassm3.csv")
-    write.csv(nuevo, file = "C:/Users/Iskar/Desktop/SM3pordia.csv")
-    hist(numerodetickets)
-  }
-
-   resumen <- summary(nuevo)
-    message ("Resumen:")
-    print(resumen)
-    return(tablabonita)
 }

@@ -78,7 +78,8 @@ print(tablabonita)
 message("Reporte por Cajero:")
 print(cajeros)
 
-write.csv(tablabonita, file = paste(yeartienda,mes,".csv"))
+write.csv(tablabonita, file = paste(yeartienda,"TICKETS",mes,".csv"))
 write.csv(resumentabla, file = paste(yeartienda,"RESUMEN",mes, ".csv"))
+write.csv(cajeros, file = paste(yeartienda,"CAJEROS",mes.".csv"))
 
 }

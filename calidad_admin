@@ -1,0 +1,49 @@
+setwd("C:/R/calidad_admin")
+
+## Read and Transpose Survey Data
+library(plyr)
+survey_admin_datos <- read.csv("CadminT315.csv")
+survey_admin_columnas <- as.data.frame(t(survey_admin_datos))
+
+number_col_admin <- ncol(survey_admin_columnas)
+names_col_admin <- c(survey_admin_columnas[5,])
+nombres_admin <- c(t(survey_admin_columnas[5,]))
+
+
+survey_admin_lider <- survey_admin_columnas[6:10,]
+colnames(survey_admin_lider) <- nombres_admin
+
+survey_admin_tareas <- survey_admin_columnas[11:13,]
+colnames(survey_admin_tareas) <- nombres_admin
+
+survey_admin_trabajo <- survey_admin_columnas[14:15,]
+colnames(survey_admin_trabajo) <- nombres_admin
+
+lider_admin <- as.table(as.matrix(lapply(survey_admin_lider, as.numeric)))
+mean_lider_admin <- colMeans(t(do.call(rbind, lider_admin)))
+
+tareas_admin <- as.table(as.matrix(lapply(survey_admin_tareas, as.numeric)))
+mean_tareas_admin <- colMeans(t(do.call(rbind, tareas_admin)))
+
+calidad_admin <- as.table(as.matrix(lapply(survey_admin_calidad, as.numeric)))
+mean_calidad_admin <- colMeans(t(do.call(rbind, calidad_admin)))
+
+
+resultados_admin_tabla <- as.data.frame(cbind(nombres_admin, mean_lider_admin, mean_tareas_admin, mean_calidad_admin))
+nombre_columnas_admin <- c("Trabajador", "Liderazgo", "Tareas","Calidad")
+colnames(resultados_admin_tabla) <- as.factor(nombre_columnas_admin)
+as.factor(resultadossr_tabla$Trabajador)
+
+usersplit <<- split(resultados_admin_tabla, resultados_admin_tabla$Trabajador)
+
+resultados_por_usuario <- ddply(resultados_admin_tabla, "Trabajador", summarize, 
+                                liderazgo = mean(as.numeric(Liderazgo)), 
+                                tareas = mean(as.numeric(Tareas)),
+                                calidad = mean(as.numeric(Calidad)))
+
+
+write.csv(survey_admin_lider, file = "lider_admin.csv")
+write.csv(survey_admin_tareas, file = "tareas_admin.csv")
+write.csv(survey_admin_trabajo, file = "trabajo_admin.csv")
+write.csv(resultados_admin_tabla, file = "resultados_admin.csv")
+write.csv(resultados_por_usuario, file = "resultados_admin_promedios.csv")

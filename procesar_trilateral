@@ -1,0 +1,40 @@
+setwd("C:/R/desarrollotrilateral")
+
+trilateral_datos2 <- read.csv("TriadminT315.csv")
+trilateral_datos_columnas2 <- as.data.frame(t(trilateral_datos2))
+
+number_col <- ncol(trilateral_datos_columnas2)
+names_col <- c(trilateral_datos_columnas2[1,])
+nombres <- t(trilateral_datos_columnas2[5,])
+
+trilateral_caracter2 <- trilateral_datos_columnas2[6:18,]
+colnames(trilateral_caracter2) <- nombres
+
+trilateral_trabajo2 <- trilateral_datos_columnas2[19:21,]
+colnames(trilateral_trabajo2) <- nombres
+
+trilateral_relaciones2 <- trilateral_datos_columnas2[22:27,]
+colnames(trilateral_relaciones2) <- nombres
+
+caracter <- as.table(as.matrix(lapply(trilateral_caracter2, as.numeric)))
+mean_caracter <- colMeans(t(do.call(rbind, caracter)))
+
+trabajo <- as.table(as.matrix(lapply(trilateral_trabajo2, as.numeric)))
+mean_trabajo <- colMeans(t(do.call(rbind, trabajo)))
+
+relaciones <- as.table(as.matrix(lapply(trilateral_relaciones2, as.numeric)))
+mean_relaciones <- colMeans(t(do.call(rbind, relaciones)))
+
+resultados_tabla <- cbind(nombres, mean_caracter, mean_trabajo, mean_relaciones)
+nombre_columnas <- c("Trabajador", "Promedio Caracter", "Promedio Ética de Trabajo", "Promedio Relaciones")
+colnames(resultados_tabla) <- nombre_columnas
+
+
+votacion <- trilateral_datos2[,28]
+votacion_cuentas <- summary(votacion)
+
+write.csv(trilateral_caracter2, file = "caracter2.csv")
+write.csv(trilateral_trabajo2, file = "trabajo2.csv")
+write.csv(trilateral_relaciones2, file = "relaciones2.csv")
+write.csv(resultados_tabla, file = "resultados_trilateral.csv")
+write.csv(votacion_cuentas, file = "votacion_trilateral.csv")

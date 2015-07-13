@@ -1,0 +1,47 @@
+setwd("C:/R/calidadsr")
+
+## Read and Transpose Survey Data
+library(plyr)
+surveysr_datos <- read.csv("Resultados Senior.csv")
+surveysr_columnas <- as.data.frame(t(surveysr_datos))
+
+number_colsr <- ncol(surveysr_columnas)
+names_colsr <- c(surveysr_columnas[5,])
+nombressr <- c(t(surveysr_columnas[5,]))
+
+
+surveysr_lider <- surveysr_columnas[6:10,]
+colnames(surveysr_lider) <- nombressr
+
+surveysr_tareas <- surveysr_columnas[11:13,]
+colnames(surveysr_tareas) <- nombressr
+
+surveysr_trabajo <- surveysr_columnas[14:15,]
+colnames(surveysr_trabajo) <- nombressr
+
+lidersr <- as.table(as.matrix(lapply(surveysr_lider, as.numeric)))
+mean_lidersr <- colMeans(t(do.call(rbind, lidersr)))
+
+tareassr <- as.table(as.matrix(lapply(surveysr_tareas, as.numeric)))
+mean_tareassr <- colMeans(t(do.call(rbind, tareassr)))
+
+calidadsr <- as.table(as.matrix(lapply(surveysr_trabajo, as.numeric)))
+mean_calidadsr <- colMeans(t(do.call(rbind, calidadsr)))
+
+calificacionsr <- mean_lidersr * mean_tareassr * mean_calidadsr
+
+resultadossr_tabla <- as.data.frame(cbind(nombressr, mean_lidersr, mean_tareassr, mean_calidadsr, calificacionsr))
+nombre_columnassr <- c("Trabajador", "Liderazgo", "Tareas","Calidad", "Calificación")
+colnames(resultadossr_tabla) <- as.factor(nombre_columnassr)
+as.factor(resultadossr_tabla$Trabajador)
+usersplit <<- split(resultadossr_tabla, resultadossr_tabla$Trabajador)
+
+resultados_por_usuario <- ddply(resultadossr_tabla, "Trabajador", summarize, 
+                                liderazgo = mean(as.numeric(Liderazgo)), 
+                                tareas = mean(as.numeric(Tareas)),
+                                calidad = mean(as.numeric(Calidad)))
+
+write.csv(surveysr_lider, file = "lider.csv")
+write.csv(surveysr_tareas, file = "tareas.csv")
+write.csv(surveysr_trabajo, file = "trabajo.csv")
+write.csv(resultadossr_tabla, file = "resultados_sr.csv")

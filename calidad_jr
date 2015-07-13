@@ -1,0 +1,39 @@
+setwd("C:/R/calidadjr")
+
+surveyjr_datos <- read.csv("Resultados Survey Jr.csv")
+surveyjr_columnas <- as.data.frame(t(surveyjr_datos))
+
+number_coljr <- ncol(surveyjr_columnas)
+names_coljr <- c(surveyjr_columnas[1,])
+nombresjr <- t(surveyjr_columnas[5,])
+
+
+surveyjr_tareas <- surveyjr_columnas[6:9,]
+colnames(surveyjr_tareas) <- nombresjr
+
+surveyjr_trabajo <- surveyjr_columnas[10:12,]
+colnames(surveyjr_trabajo) <- nombresjr
+
+surveyjr_cliente <- surveyjr_columnas[13:15,]
+colnames(surveyjr_cliente) <- nombresjr
+
+tareasjr <- as.table(as.matrix(lapply(surveyjr_tareas, as.numeric)))
+mean_tareasjr <- colMeans(t(do.call(rbind, caracter)))
+
+calidadjr <- as.table(as.matrix(lapply(surveyjr_tareas, as.numeric)))
+mean_calidadjr <- colMeans(t(do.call(rbind, trabajo)))
+
+atencion <- as.table(as.matrix(lapply(surveyjr_tareas, as.numeric)))
+mean_atencion <- colMeans(t(do.call(rbind, relaciones)))
+
+calificacionjr <- mean_tareasjr * mean_calidadjr * mean_atencion
+
+resultadosjr_tabla <- cbind(nombresjr, mean_tareasjr, mean_calidadjr, mean_atencion, calificacionjr)
+nombre_columnasjr <- c("Trabajador", "Promedio Tareas", "Promedio Calidad de Trabajo", "Promedio Atención al Ciente", "Calificación")
+colnames(resultados_tabla) <- nombre_columnasjr
+
+
+write.csv(surveyjr_tareas, file = "tareasjr.csv")
+write.csv(surveyjr_trabajo, file = "trabajojr.csv")
+write.csv(surveyjr_cliente, file = "atencionjr.csv")
+write.csv(resutadosjr_tabla, file = "resultadosjr.csv")
